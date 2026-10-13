@@ -1,149 +1,103 @@
 # Daybook
 
-A private personal productivity workspace built with React, TypeScript, Tailwind CSS, and Supabase.
+Daybook is my personal productivity workspace. I built it around the tools I use to plan work, keep notes, reflect on my days, and stay on top of ongoing goals. I use it in my day-to-day life, and I’m sharing the source publicly.
 
-## 1. Required tools
+This repository is the app’s source code; it is not an invitation to use my personal Supabase project. To run your own copy, create and configure your own Supabase project and keep its credentials private.
+
+## What it does
+
+- **To-dos:** Capture and organize tasks, set priorities and due dates, and keep track of what needs attention.
+- **Notes and topics:** Group notes into topics, keep a timeline of entries, pin important topics, and use text or checklist entries.
+- **Daily log:** Write an entry for each day, browse entries in a calendar, search past writing, and use optional prompts.
+- **Inbox:** Capture things to sort out later.
+- **Goals:** Track personal goals alongside everyday work.
+- **Today, activity, and reviews:** Get a view of current priorities and recent activity, and write daily or weekly reflections.
+- **Classic notes:** Keep standalone notes as well as topic-based notes.
+- **Autosave and local cache:** Changes save to Supabase, with a browser copy to help the workspace reopen quickly.
+- **Export and shortcuts:** Download workspace data and use keyboard shortcuts for quick capture and common actions.
+- **Light and dark themes**, with layouts for desktop and mobile.
+
+## Technology
+
+- React and TypeScript
+- Vite
+- Tailwind CSS
+- Supabase Auth and Postgres
+
+## Run your own copy
+
+### Requirements
 
 - Node.js 22.22.2+, 24.15.0+, or 26.0.0+
 - npm 10+ or pnpm
-- A Supabase account
-- A free Vercel account for deployment
+- Your own Supabase project
 
-## 2. Install dependencies
+### Install and configure
 
-```bash
-npm install
-```
+1. Clone or download this repository and install dependencies:
 
-## 3. Create or connect to a Supabase project
+   ```sh
+   npm install
+   ```
 
-1. Open the Supabase Dashboard.
-2. Click New project.
-3. Pick an organization and a database region.
-4. Create a database password and save it somewhere secure.
-5. Wait for the project to finish provisioning.
+2. Create a `.env.local` file in the project root:
 
-## 4. Find the correct Supabase values
+   ```env
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+   ```
 
-In the Supabase dashboard:
+   Find these values in your Supabase project’s API settings. Use the publishable/anon key in the browser app; **never** put a service-role key or database password in frontend environment variables.
 
-- Go to Project settings > API.
-- Copy the Project URL.
-- Copy the anon/public key (publishable key).
+3. In the Supabase SQL Editor, run these migrations in order:
 
-Use these values in your frontend environment, not the service role key.
+   - `supabase/migrations/001_initial_schema.sql`
+   - `supabase/migrations/002_integrity.sql`
+   - `supabase/migrations/003_single_user.sql`
+   - `supabase/migrations/004_topics.sql`
+   - `supabase/migrations/006_portfolio_demo.sql`
 
-## 5. Configure the frontend environment
+   Do not run `005_lock_to_login.sql` for this setup. It is an alternative single-owner policy that requires replacing a user-ID placeholder. Migration `006_portfolio_demo.sql` configures the account-based signup flow used by the app. Do not use both profiles interchangeably.
 
-Create a `.env.local` file based on `.env.example`:
+4. In Supabase Authentication settings, allow email signups and turn off email confirmation. The app expects signup to create an active session immediately.
 
-```bash
-cp .env.example .env.local
-```
+5. Start the development server:
 
-Then edit it:
+   ```sh
+   npm run dev
+   ```
 
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
-```
+   Open the local URL printed by Vite.
 
-Do not commit `.env.local` or any secrets.
+### Data retention and limits
 
-## 6. Apply the SQL migrations
+The account-based SQL profile in `006_portfolio_demo.sql` is configured with a maximum of 10 accounts, a shared 100 MB text-content limit, and automatic account and row deletion 7 days after signup. The local browser cache is also cleaned up on that schedule. These are active database behaviors, not just interface copy.
 
-From the Supabase SQL editor, run these files in order:
+Because of automatic deletion, **do not use this profile for long-term or irreplaceable personal records**. Export your data regularly from Settings and keep backups somewhere you control. If you want a different retention or account policy, review and deliberately change the relevant SQL functions and scheduled job in `006_portfolio_demo.sql` before using your own deployment.
 
-1. `supabase/migrations/001_initial_schema.sql`
-2. `supabase/migrations/002_integrity.sql`
-3. `supabase/migrations/003_single_user.sql`
-4. `supabase/migrations/004_topics.sql`
-5. `supabase/migrations/006_portfolio_demo.sql`
+The browser cache is a convenience, not a backup. Signing out does not make an export, and deleting browser data does not delete the Supabase account.
 
-Do not run `005_lock_to_login.sql`. It is a separate, single-owner setup that requires manually replacing its user-ID placeholder. For Daybook, run `006_portfolio_demo.sql` instead; it configures signup and per-account access:
+## Development
 
-- Visitors can create an account and sign in.
-- The database keeps at most 10 accounts.
-- Text content across every account stays within 100 MB.
-- Each account, and the rows that belong to it, is deleted 7 days after signup.
-
-If the migration reports that `pg_cron` could not be scheduled, enable the `pg_cron` extension in Database → Extensions and run `006` again. The sign-in screen also deletes expired accounts, so a free spot does not depend on the nightly job.
-
-## 7. Allow signup
-
-1. Open Supabase > Authentication > Providers > Email.
-2. Turn new signups on.
-3. Turn Confirm email off, so a new account can sign in immediately after signup.
-
-## 8. Sign up or sign in
-
-Open the app and create an account or sign in. The session is kept in the browser and is sent with every page.
-
-A copy of the workspace is also stored in this browser so the next visit can open faster. Settings has **Delete data on this device** for clearing it sooner.
-
-## 9. Run locally
-
-```bash
-npm run dev
-```
-
-Then visit the local Vite URL displayed in the terminal.
-
-## 10. Build and test
-
-```bash
+```sh
 npm run check
-npm run test
+npm test
 npm run build
 ```
 
-The build verifies the TypeScript project and production bundle compile.
+To preview a production build locally:
 
-## 11. Deploy to Vercel for free
+```sh
+npm run preview
+```
 
-1. Push the repository to GitHub.
-2. Open Vercel.
-3. Import the repository.
-4. Set the framework to Vite.
-5. Add environment variables:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY`
-6. Deploy.
+## Deploying your copy
 
-## 12. Export and backup data
+Build the app with `npm run build` and deploy the generated `dist` directory to a static hosting provider. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` to that provider’s environment settings. Configure your Supabase Auth site URL and allowed redirect URLs to match your deployment.
 
-Use the Settings page to export a JSON backup of your personal data.
+## Privacy and security
 
-You can also back up the production database in Supabase:
-
-1. Open Supabase Project settings.
-2. Go to Database > Backups or choose the export route available for your plan.
-3. Export the database or use pg_dump if you have a local Postgres client.
-4. Keep a local encrypted copy of the JSON and SQL exports.
-
-Do not treat autosave as a backup layer. Keep a separate, deliberate export routine.
-
-## 13. Common errors and troubleshooting
-
-- Missing env values: confirm `.env.local` is present and Vite variables are spelled correctly.
-- Auth errors: confirm email signups are turned on and Confirm email is turned off.
-- "All 10 demo spots are in use": wait until an account reaches 7 days, or open the sign-in screen so expired accounts are removed.
-- "This demo can store 100 MB": delete content, or wait until an account and its rows expire.
-- RLS errors: confirm `006_portfolio_demo.sql` was run after migrations `001` through `004`.
-- The `PASTE-YOUR-AUTH-USER-ID-HERE` error means `005_lock_to_login.sql` was run. For this setup, skip `005` and run `006_portfolio_demo.sql` after `001` through `004`.
-- Wrong date problems: keep a single local-date strategy for daily logs, due dates, and review periods.
-- Stale autosave: the app uses request IDs so older writes cannot overwrite newer content.
-
-## 14. Privacy note
-
-This build is a public portfolio demo. Row level security lets a signed-in visitor read and edit only their own rows. Ownership of a row still cannot be changed from the frontend.
-
-Accounts and their rows are deleted 7 days after signup. The browser copy follows the same deadline and can also be cleared from Settings. Do not put private or client data in the demo.
-
-No service-role key or database password is meant to live in browser code.
-
-## 15. Current implementation status
-
-This repository includes the full TypeScript application structure, migration SQL, and documentation.
-
-The production app requires a real Supabase project to be configured in `.env.local` and the SQL migration to be executed in the Supabase dashboard before authentication and persistence work in a live environment.
+- Each signed-in account is restricted to its own rows by Supabase row-level security policies.
+- Keep `.env.local` out of version control.
+- Never expose a Supabase service-role key or database credentials in client code.
+- Review the migrations and data-retention behavior before connecting real personal information.
