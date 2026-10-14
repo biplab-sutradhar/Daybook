@@ -45,6 +45,7 @@ This repository is the app’s source code; it is not an invitation to use my pe
    ```env
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+   VITE_SITE_URL=https://your-public-site.example
    ```
 
    Find these values in your Supabase project’s API settings. Use the publishable/anon key in the browser app; **never** put a service-role key or database password in frontend environment variables.
@@ -59,7 +60,7 @@ This repository is the app’s source code; it is not an invitation to use my pe
 
    Do not run `005_lock_to_login.sql` for this setup. It is an alternative single-owner policy that requires replacing a user-ID placeholder. Migration `006_portfolio_demo.sql` configures the account-based signup flow used by the app. Do not use both profiles interchangeably.
 
-4. In Supabase Authentication settings, allow email signups and turn off email confirmation. The app expects signup to create an active session immediately.
+4. In Supabase Authentication settings, allow email signups, enable email confirmation, and add the value of `VITE_SITE_URL` to the allowed redirect URLs. Users will receive an email confirmation link that returns them to your public site.
 
 5. Start the development server:
 
@@ -93,7 +94,7 @@ npm run preview
 
 ## Deploying your copy
 
-Build the app with `npm run build` and deploy the generated `dist` directory to a static hosting provider. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` to that provider’s environment settings. Configure your Supabase Auth site URL and allowed redirect URLs to match your deployment.
+Build the app with `npm run build` and deploy the generated `dist` directory to a static hosting provider. Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_SITE_URL` to that provider’s environment settings. `VITE_SITE_URL` defaults to `https://daybook-notes.vercel.app/`; set it to your deployment’s public URL when deploying elsewhere. Configure your Supabase Auth allowed redirect URLs to include that URL.
 
 ## Privacy and security
 

@@ -48,4 +48,16 @@ describe('LoginScreen', () => {
 
     expect(onSignUp).toHaveBeenCalledWith('visitor@example.com', 'secret1');
   });
+
+  it('asks users to confirm their account from email when required', async () => {
+    const onSignUp = vi.fn(async () => true);
+    render(<LoginScreen onSignIn={async () => undefined} onSignUp={onSignUp} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+    fireEvent.change(screen.getByLabelText('Email address'), { target: { value: 'visitor@example.com' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'secret1' } });
+    fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'secret1' } });
+    fireEvent.submit(screen.getByLabelText('Email address').closest('form')!);
+
+    expect((await screen.findByRole('status')).textContent).toMatch(/check your email for a confirmation link/i);
+  });
 });

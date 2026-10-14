@@ -137,11 +137,15 @@ export default function App() {
         if (error) throw error;
       }}
       onSignUp={async (email, password) => {
-        const { data, error } = await requireSupabaseClient().auth.signUp({ email, password });
+        const { data, error } = await requireSupabaseClient().auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: import.meta.env.VITE_SITE_URL || 'https://daybook-notes.vercel.app/',
+          },
+        });
         if (error) throw error;
-        if (!data.session) {
-          throw new Error('Email confirmation is enabled in Supabase. Turn it off to allow sign-in immediately after account creation.');
-        }
+        return !data.session;
       }}
     />;
   }

@@ -17,7 +17,7 @@ export function SetupScreen() {
         <ol className="mt-5 space-y-2 text-sm leading-6 text-stone-700 dark:text-stone-200">
           <li>1. Run migrations <code>001</code> through <code>004</code>, then <code>006_portfolio_demo.sql</code>. Do not run <code>005_lock_to_login.sql</code>.</li>
           <li>2. In Authentication → Providers → Email, allow new signups.</li>
-          <li>3. Turn off Confirm email so users can sign in immediately after signup.</li>
+          <li>3. Enable Confirm email, then add your public site URL to the allowed redirect URLs in Supabase.</li>
         </ol>
       </div>
     </div>
@@ -29,7 +29,7 @@ export function LoginScreen({
   onSignUp,
 }: {
   onSignIn: (email: string, password: string) => Promise<void>;
-  onSignUp: (email: string, password: string) => Promise<void>;
+  onSignUp: (email: string, password: string) => Promise<boolean | void>;
 }) {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in');
   const [email, setEmail] = useState('');
@@ -39,10 +39,12 @@ export function LoginScreen({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
 
   function changeMode(nextMode: 'sign-in' | 'sign-up') {
     setMode(nextMode);
     setError(null);
+    setConfirmationMessage(null);
     setConfirmPassword('');
     setShowPassword(false);
     setShowConfirmPassword(false);
@@ -52,6 +54,7 @@ export function LoginScreen({
     event.preventDefault();
     if (busy) return;
     setError(null);
+    setConfirmationMessage(null);
 
     const normalizedEmail = email.trim();
     if (mode === 'sign-up' && password !== confirmPassword) {
@@ -62,7 +65,10 @@ export function LoginScreen({
     setBusy(true);
     try {
       if (mode === 'sign-up') {
-        await onSignUp(normalizedEmail, password);
+        const confirmationRequired = await onSignUp(normalizedEmail, password);
+        if (confirmationRequired) {
+          setConfirmationMessage('Check your email for a confirmation link. Open it to verify your account, then sign in.');
+        }
       } else {
         await onSignIn(normalizedEmail, password);
       }
@@ -222,6 +228,7 @@ export function LoginScreen({
                   </div>
 
                   {error && <p className="rounded-xl bg-rose-50 p-3 text-sm leading-5 text-rose-700 dark:bg-rose-950 dark:text-rose-300" role="alert">{error}</p>}
+                  {confirmationMessage && <p className="rounded-xl bg-teal-50 p-3 text-sm leading-5 text-teal-800 dark:bg-teal-950 dark:text-teal-200" role="status">{confirmationMessage}</p>}
                   <Button className="mt-2 min-h-12 w-full rounded-xl" variant="primary" type="submit" disabled={busy}>
                     {busy ? (mode === 'sign-up' ? 'Creating account…' : 'Signing in…') : (mode === 'sign-up' ? 'Create account' : 'Sign in')}
                     {!busy && <ArrowRight size={16} />}
