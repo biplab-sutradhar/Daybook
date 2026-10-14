@@ -17,4 +17,12 @@ describe('formatDbError', () => {
       'That account is no longer available. Please create a new account to continue.',
     );
   });
+
+  it('explains how to resolve database access errors during loading or saving', () => {
+    const message = formatDbError({ code: '42501', message: 'permission denied for table tasks' }, 'Could not load tasks.');
+    expect(message).toMatch(/cannot access this data/i);
+    expect(message).toMatch(/006_portfolio_demo\.sql/);
+    expect(message).toMatch(/VITE_SUPABASE_URL/);
+    expect(message).not.toMatch(/rejected this save/i);
+  });
 });

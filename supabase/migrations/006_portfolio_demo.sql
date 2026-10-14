@@ -8,6 +8,8 @@
 -- Remove the single-owner helper from 005 when it exists.
 drop function if exists public.is_workspace_owner();
 
+grant usage on schema public to authenticated;
+
 do $$
 declare
   pol record;

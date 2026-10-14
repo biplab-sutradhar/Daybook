@@ -20,7 +20,7 @@ export function formatDbError(error: DbError | null | undefined, fallback: strin
   }
 
   if (code === '42501' || /row-level security|permission denied/i.test(message)) {
-    return 'The database rejected this save. In the Supabase SQL editor, run supabase/migrations/006_portfolio_demo.sql, then try again.';
+    return 'Daybook cannot access this data. In the Supabase SQL editor, run migrations 001–004 followed by 006_portfolio_demo.sql, and make sure 006 completes successfully. Do not run 005_lock_to_login.sql. If this persists, check that the site’s VITE_SUPABASE_URL points to the same project.';
   }
 
   if (code === '23505' || /duplicate key/i.test(message)) {

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { ArrowRight, Layers3, LockKeyhole, Mail, Sparkles } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Layers3, LockKeyhole, Mail, Sparkles } from 'lucide-react';
 
 import { APP_NAME } from '../lib/constants';
 import { formatDbError } from '../lib/errors';
@@ -35,6 +35,8 @@ export function LoginScreen({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +44,8 @@ export function LoginScreen({
     setMode(nextMode);
     setError(null);
     setConfirmPassword('');
+    setShowPassword(false);
+    setShowConfirmPassword(false);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -170,8 +174,8 @@ export function LoginScreen({
                         <LockKeyhole size={17} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                         <input
                           id="login-confirm-password"
-                          className="field min-h-12 rounded-xl pl-10"
-                          type="password"
+                          className="field min-h-12 rounded-xl pl-10 pr-11"
+                          type={showConfirmPassword ? 'text' : 'password'}
                           autoComplete="new-password"
                           placeholder="Re-enter your password"
                           minLength={6}
@@ -179,6 +183,14 @@ export function LoginScreen({
                           value={confirmPassword}
                           onChange={(event) => setConfirmPassword(event.target.value)}
                         />
+                        <button
+                          type="button"
+                          aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                          className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-stone-500 transition hover:text-stone-900 dark:hover:text-stone-100"
+                          onClick={() => setShowConfirmPassword((current) => !current)}
+                        >
+                          {showConfirmPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
+                        </button>
                       </div>
                     </div>
                   )}
@@ -189,8 +201,8 @@ export function LoginScreen({
                       <LockKeyhole size={17} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                       <input
                         id="login-password"
-                        className="field min-h-12 rounded-xl pl-10"
-                        type="password"
+                        className="field min-h-12 rounded-xl pl-10 pr-11"
+                        type={showPassword ? 'text' : 'password'}
                         autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
                         placeholder={mode === 'sign-up' ? 'At least 6 characters' : 'Enter your password'}
                         minLength={6}
@@ -198,6 +210,14 @@ export function LoginScreen({
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                       />
+                      <button
+                        type="button"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-stone-500 transition hover:text-stone-900 dark:hover:text-stone-100"
+                        onClick={() => setShowPassword((current) => !current)}
+                      >
+                        {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
+                      </button>
                     </div>
                   </div>
 

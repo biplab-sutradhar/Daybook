@@ -11,6 +11,19 @@ describe('LoginScreen', () => {
     expect(screen.queryByText(/portfolio demo|10 accounts|100 MB|deleted.*7 days/i)).toBeNull();
   });
 
+  it('allows showing and hiding the password', () => {
+    render(<LoginScreen onSignIn={async () => undefined} onSignUp={async () => undefined} />);
+
+    const passwordInput = screen.getByLabelText('Password');
+    fireEvent.change(passwordInput, { target: { value: 'secret1' } });
+
+    expect(passwordInput.getAttribute('type')).toBe('password');
+    fireEvent.click(screen.getByRole('button', { name: 'Show password' }));
+    expect(passwordInput.getAttribute('type')).toBe('text');
+    fireEvent.click(screen.getByRole('button', { name: 'Hide password' }));
+    expect(passwordInput.getAttribute('type')).toBe('password');
+  });
+
   it('requires matching passwords before creating an account', async () => {
     const onSignUp = vi.fn(async () => undefined);
     render(<LoginScreen onSignIn={async () => undefined} onSignUp={onSignUp} />);
